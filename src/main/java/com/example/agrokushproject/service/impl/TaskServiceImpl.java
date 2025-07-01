@@ -8,53 +8,56 @@ import com.example.agrokushproject.repositories.TaskRepository;
 import com.example.agrokushproject.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
-    @Override
-    public TaskDto saveTask(TaskDto taskDto){
+    private final TaskMapper taskMapper;
 
-        Task task = TaskMapper.INSTANCE.toEntity(taskDto);
-        try {
-            Task taskSave = taskRepository.save(task);
-            return TaskMapper.INSTANCE.toDto(taskSave);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Не удалось сохранить задачу в базе!", e);
-        }
+    @Override
+    @Transactional
+    public TaskDto saveTask(TaskDto taskDto) {
+        Task toSave = taskMapper.toEntity(taskDto);
+        Task saved = taskRepository.save(toSave);
+        return taskMapper.toDto(saved);
     }
 
     @Override
+    @Transactional
     public TaskDto updateTask(TaskDto taskDto) {
-        Task task = this.taskRepository.findById(taskDto.getId())
-                .orElseThrow(() -> new RuntimeException("Статус задачи не найден"));
-
-        TaskMapper.INSTANCE.update(task, taskDto);
-
-        try{
-            Task taskSave=taskRepository.save(task);
-            return  TaskMapper.INSTANCE.toDto(taskSave);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Не удалось обновить задачу в базе!", e);
+        Long id = taskDto.getId();
+        if (id == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Task id must be provided for update");
         }
-    }
+        Task existing = taskRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found with id " + id));
+        Task toSave = taskMapper.toEntity(taskDto);
+        toSave.setId(existing.getId());
 
+        Task updated = taskRepository.save(toSave);
+        return taskMapper.toDto(updated);
+    }
 
     @Override
-    public List<TaskDto> findAllTask() {
-        return TaskMapper.INSTANCE.toResponseList(taskRepository.findAll());
+    @Transactional(readOnly = true)
+    public List<TaskDto> getAllTask() {
+        List<Task> tasks = taskRepository.findAll();
+        return taskMapper.toDtoList(tasks);
     }
 
     @Override
-    public void deleteTask(Long id){
-        Task task = this.taskRepository.findById(id)
-                .orElseThrow(() -> new RecordNotFoundException("Статус задачи не найден"));
-
-        taskRepository.deleteById(task.getId());
+    @Transactional
+    public void deleteTask(Long id) {
+        if (!taskRepository.existsById(id)) {
+            throw new ResponseStatusException(NOT_FOUND, "Task not found with id " + id);
+        }
+        taskRepository.deleteById(id);
     }
-
-
 }

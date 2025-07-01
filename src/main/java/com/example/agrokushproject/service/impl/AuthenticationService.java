@@ -5,7 +5,7 @@ import com.example.agrokushproject.dto.AuthenticateRequest;
 import com.example.agrokushproject.dto.AuthenticationResponse;
 import com.example.agrokushproject.dto.RegisterRequest;
 import com.example.agrokushproject.entity.User;
-import com.example.agrokushproject.enums.Role;
+import com.example.agrokushproject.entity.enums.Role;
 import com.example.agrokushproject.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +35,6 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
-
     }
 
     public AuthenticationResponse authenticate(AuthenticateRequest request){

@@ -26,7 +26,7 @@ public class SparePartController {
 
     @GetMapping("/findAll")
     public List<SparePartDto> findAll() {
-        return sparePartService.findAllSparePart();
+        return sparePartService.getAllSparePart();
     }
 
     @DeleteMapping("/delete/{id}")

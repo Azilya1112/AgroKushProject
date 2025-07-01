@@ -3,13 +3,13 @@ package com.example.agrokushproject.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -33,31 +33,32 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final static List<UserDetails> APPLICATION_USERS= Arrays.asList(
-            new User(
-                    "azilya1112@gmail.com",
-                    "password",
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"))
-            ),
-            new User(
-                    "user@gmail.com",
-                    "password",
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))
-            )
-    );
+
+    private final CustomUserDetailsService userDetailsService;
 
 
     @Bean
-    SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
-                http
-			    .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .anyRequest().authenticated()
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+                "/v3/api-docs/**",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/webjars/**",
+                "/api/v1/**"
+        );
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                        .httpBasic(withDefaults())
-                        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        .authenticationProvider(authenticationProvider())
-                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -65,7 +66,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(){
         final DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
 
@@ -79,20 +80,5 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserDetailsService() {
-            @Override
-            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                return APPLICATION_USERS
-                        .stream()
-                        .filter(u->u.getUsername().equals(username))
-                        .findFirst()
-                        .orElseThrow(()->new UsernameNotFoundException("No user was found"))
-                        ;
-            }
-        };
     }
 }

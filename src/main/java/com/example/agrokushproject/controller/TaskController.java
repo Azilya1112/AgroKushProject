@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/task")
+@RequestMapping("/task")
 public class TaskController {
 
     private final TaskService taskService;
@@ -26,7 +26,7 @@ public class TaskController {
 
     @GetMapping("/findAll")
     public List<TaskDto> findAll() {
-        return taskService.findAllTask();
+        return taskService.getAllTask();
     }
 
     @DeleteMapping("/delete/{id}")

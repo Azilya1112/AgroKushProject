@@ -1,40 +1,58 @@
 package com.example.agrokushproject.entity;
 
 //Добавить техпаспорт оборудования
+import com.example.agrokushproject.entity.enums.EquipmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name="equipment")
 public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @Column(name="equipment_name")
-    String equipmentName;
+    private String equipmentName;
 
     @Column(name="model")
-    String model;
+    private String model;
 
     @Column(name="manufacturer")
-    String manufacturer;
+    private String manufacturer;
 
     @Column(name="installationDate")
-    LocalDateTime installationDate;
+    private LocalDateTime installationDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn
-    EquipmentStatus status;
+    @Column(name="equipment_status")
+    @Enumerated(EnumType.STRING)
+    private EquipmentStatus equipmentStatus;
+
+    @EqualsAndHashCode.Exclude
+    @ManyToMany(mappedBy = "equipments")
+    private Set<Task> tasks = new HashSet<>();
+
+    @EqualsAndHashCode.Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "equipment_spare_parts",
+            joinColumns = @JoinColumn(name = "equipment_id"),
+            inverseJoinColumns = @JoinColumn(name = "spare_part_id")
+    )
+    private Set<SparePart> spareParts = new HashSet<>();
+
+    @EqualsAndHashCode.Exclude
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn
-    Image techPassportImage;
-
+    Material techPassport;
 }

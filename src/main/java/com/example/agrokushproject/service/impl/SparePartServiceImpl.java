@@ -8,52 +8,58 @@ import com.example.agrokushproject.repositories.SparePartRepository;
 import com.example.agrokushproject.service.SparePartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class SparePartServiceImpl implements SparePartService {
 
     private final SparePartRepository sparePartRepository;
-
+    private final SparePartMapper sparePartMapper;
 
     @Override
+    @Transactional
     public SparePartDto saveSparePart(SparePartDto sparePartDto) {
-        SparePart sparePart= SparePartMapper.INSTANCE.toEntity(sparePartDto);
-        try {
-            SparePart sparePartSave = sparePartRepository.save(sparePart);
-            return SparePartMapper.INSTANCE.toDto(sparePartSave);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Не удалось сохранить в базе!", e);
-        }
+        SparePart entity = sparePartMapper.toEntity(sparePartDto);
+        SparePart saved = sparePartRepository.save(entity);
+        return sparePartMapper.toDto(saved);
     }
 
     @Override
+    @Transactional
     public SparePartDto updateSparePart(SparePartDto sparePartDto) {
-        SparePart sparePart = this.sparePartRepository.findById(sparePartDto.getId())
-                .orElseThrow(() -> new RuntimeException("апчасть не найдена"));
-
-        SparePartMapper.INSTANCE.update(sparePartDto, sparePart);
-
-        try{
-            SparePart sparePartSave=sparePartRepository.save(sparePart);
-            return  SparePartMapper.INSTANCE.toDto(sparePartSave);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Не удалось обновить в базе!", e);
+        Long id = sparePartDto.getId();
+        if (id == null) {
+            throw new ResponseStatusException(NOT_FOUND, "SparePart id must be provided for update");
         }
+        SparePart existing = sparePartRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "SparePart not found with id " + id));
+
+        SparePart toSave = sparePartMapper.toEntity(sparePartDto);
+        toSave.setId(existing.getId());
+
+        SparePart updated = sparePartRepository.save(toSave);
+        return sparePartMapper.toDto(updated);
     }
 
     @Override
-    public List<SparePartDto> findAllSparePart() {
-        return SparePartMapper.INSTANCE.toResponseList(sparePartRepository.findAll());
+    @Transactional(readOnly = true)
+    public List<SparePartDto> getAllSparePart() {
+        List<SparePart> list = sparePartRepository.findAll();
+        return sparePartMapper.toDtoList(list);
     }
 
-
     @Override
+    @Transactional
     public void deleteSparePart(Long id) {
-        SparePart sparePart=this.sparePartRepository.findById(id)
-                .orElseThrow(() -> new RecordNotFoundException("Статус оборудования не найден"));
+        if (!sparePartRepository.existsById(id)) {
+            throw new ResponseStatusException(NOT_FOUND, "SparePart not found with id " + id);
+        }
         sparePartRepository.deleteById(id);
     }
 }

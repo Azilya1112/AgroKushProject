@@ -1,7 +1,7 @@
 package com.example.agrokushproject.entity;
 
 
-import com.example.agrokushproject.enums.Role;
+import com.example.agrokushproject.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,24 +18,26 @@ import java.util.List;
 @Data
 @Builder
 @Entity
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "use")
+@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    @Column(name = "email", unique = true)
-    String email;
-    @Column(name = "password")
-    String password;
-    @Column(name="lastName")
-    String lastName;
-    @Column(name="firstName")
-    String firstName;
+    private Long id;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn
-    Task task;
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Column(name = "password")
+    private String password;
+
+    @Column(name="lastName")
+    private String lastName;
+
+    @Column(name="firstName")
+    private String firstName;
+
+    @OneToMany(mappedBy = "user")
+    private List<Task> tasks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Role role;
