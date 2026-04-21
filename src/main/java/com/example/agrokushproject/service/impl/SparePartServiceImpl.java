@@ -2,11 +2,11 @@ package com.example.agrokushproject.service.impl;
 
 import com.example.agrokushproject.dto.SparePartDto;
 import com.example.agrokushproject.entity.SparePart;
-import com.example.agrokushproject.exceptions.RecordNotFoundException;
 import com.example.agrokushproject.mapper.SparePartMapper;
 import com.example.agrokushproject.repositories.SparePartRepository;
 import com.example.agrokushproject.service.SparePartService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SparePartServiceImpl implements SparePartService {
@@ -25,6 +26,7 @@ public class SparePartServiceImpl implements SparePartService {
     @Override
     @Transactional
     public SparePartDto saveSparePart(SparePartDto sparePartDto) {
+        log.info("Saving spare part: {}", sparePartDto.getName());
         SparePart entity = sparePartMapper.toEntity(sparePartDto);
         SparePart saved = sparePartRepository.save(entity);
         return sparePartMapper.toDto(saved);
@@ -37,6 +39,7 @@ public class SparePartServiceImpl implements SparePartService {
         if (id == null) {
             throw new ResponseStatusException(NOT_FOUND, "SparePart id must be provided for update");
         }
+        log.info("Updating spare part with id: {}", id);
         SparePart existing = sparePartRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "SparePart not found with id " + id));
 
@@ -50,6 +53,7 @@ public class SparePartServiceImpl implements SparePartService {
     @Override
     @Transactional(readOnly = true)
     public List<SparePartDto> getAllSparePart() {
+        log.debug("Fetching all spare parts");
         List<SparePart> list = sparePartRepository.findAll();
         return sparePartMapper.toDtoList(list);
     }
@@ -58,8 +62,10 @@ public class SparePartServiceImpl implements SparePartService {
     @Transactional
     public void deleteSparePart(Long id) {
         if (!sparePartRepository.existsById(id)) {
+            log.warn("Spare part not found with id: {}", id);
             throw new ResponseStatusException(NOT_FOUND, "SparePart not found with id " + id);
         }
+        log.info("Deleting spare part with id: {}", id);
         sparePartRepository.deleteById(id);
     }
 }

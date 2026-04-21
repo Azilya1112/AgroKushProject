@@ -6,6 +6,7 @@ import com.example.agrokushproject.mapper.DefectMapper;
 import com.example.agrokushproject.repositories.DefectRepository;
 import com.example.agrokushproject.service.DefectService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +17,7 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DefectServiceImpl implements DefectService {
@@ -26,6 +28,7 @@ public class DefectServiceImpl implements DefectService {
     @Override
     @Transactional
     public DefectDto saveDefect(DefectDto defectDto) {
+        log.info("Saving defect: {}", defectDto.getDefectName());
         Defect entity = defectMapper.toEntity(defectDto);
         Defect saved = defectRepository.save(entity);
         return defectMapper.toDto(saved);
@@ -38,6 +41,7 @@ public class DefectServiceImpl implements DefectService {
         if (id == null) {
             throw new ResponseStatusException(NOT_FOUND, "Defect id must be provided for update");
         }
+        log.info("Updating defect with id: {}", id);
         Defect existing = defectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Defect not found with id " + id));
 
@@ -51,6 +55,7 @@ public class DefectServiceImpl implements DefectService {
     @Override
     @Transactional(readOnly = true)
     public List<DefectDto> getAllDefects() {
+        log.debug("Fetching all defects");
         List<Defect> list = defectRepository.findAll();
         return list.isEmpty()
                 ? Collections.emptyList()
@@ -69,8 +74,10 @@ public class DefectServiceImpl implements DefectService {
     @Transactional
     public void deleteDefect(Long id) {
         if (!defectRepository.existsById(id)) {
+            log.warn("Defect not found with id: {}", id);
             throw new ResponseStatusException(NOT_FOUND, "Defect not found with id " + id);
         }
+        log.info("Deleting defect with id: {}", id);
         defectRepository.deleteById(id);
     }
 }

@@ -6,6 +6,7 @@ import com.example.agrokushproject.mapper.MaterialMapper;
 import com.example.agrokushproject.repositories.MaterialRepository;
 import com.example.agrokushproject.service.MaterialService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MaterialServiceImpl implements MaterialService {
@@ -24,6 +26,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     @Transactional
     public MaterialDto saveMaterial(MaterialDto materialDto) {
+        log.info("Saving material: {}", materialDto.getFileName());
         Material entity = materialMapper.toEntity(materialDto);
         Material saved = materialRepository.save(entity);
         return materialMapper.toDto(saved);
@@ -36,6 +39,7 @@ public class MaterialServiceImpl implements MaterialService {
         if (id == null) {
             throw new ResponseStatusException(NOT_FOUND, "Material id must be provided for update");
         }
+        log.info("Updating material with id: {}", id);
         Material existing = materialRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Material not found with id " + id));
 
@@ -49,6 +53,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     @Transactional(readOnly = true)
     public MaterialDto getMaterialById(long id) {
+        log.debug("Fetching material with id: {}", id);
         Material material = materialRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Material not found with id " + id));
         return materialMapper.toDto(material);
@@ -57,6 +62,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     @Transactional(readOnly = true)
     public List<MaterialDto> getAllMaterials() {
+        log.debug("Fetching all materials");
         List<Material> list = materialRepository.findAll();
         return materialMapper.toDtoList(list);
     }
@@ -65,8 +71,10 @@ public class MaterialServiceImpl implements MaterialService {
     @Transactional
     public void deleteMaterialById(long id) {
         if (!materialRepository.existsById(id)) {
+            log.warn("Material not found with id: {}", id);
             throw new ResponseStatusException(NOT_FOUND, "Material not found with id " + id);
         }
+        log.info("Deleting material with id: {}", id);
         materialRepository.deleteById(id);
     }
 }

@@ -6,6 +6,7 @@ import com.example.agrokushproject.mapper.LocationMapper;
 import com.example.agrokushproject.repositories.LocationRepository;
 import com.example.agrokushproject.service.LocationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
@@ -24,6 +26,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     @Transactional
     public LocationDto saveLocation(LocationDto locationDto) {
+        log.info("Saving location: {}", locationDto.getName());
         Location toSave = locationMapper.toEntity(locationDto);
         Location saved = locationRepository.save(toSave);
         return locationMapper.toDto(saved);
@@ -32,7 +35,8 @@ public class LocationServiceImpl implements LocationService {
     @Override
     @Transactional
     public LocationDto updateLocation(LocationDto locationDto) {
-        Long id = (long) locationDto.getId();
+        Long id = locationDto.getId();
+        log.info("Updating location with id: {}", id);
         Location existing = locationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND,
                         "Location not found with id " + id));
@@ -47,6 +51,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     @Transactional(readOnly = true)
     public List<LocationDto> getAllLocations() {
+        log.debug("Fetching all locations");
         List<Location> list = locationRepository.findAll();
         return locationMapper.toDtoList(list);
     }
@@ -55,9 +60,11 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     public void deleteLocation(Long id) {
         if (!locationRepository.existsById(id)) {
+            log.warn("Location not found with id: {}", id);
             throw new ResponseStatusException(NOT_FOUND,
                     "Location not found with id " + id);
         }
+        log.info("Deleting location with id: {}", id);
         locationRepository.deleteById(id);
     }
 }

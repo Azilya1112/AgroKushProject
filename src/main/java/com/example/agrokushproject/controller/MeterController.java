@@ -2,6 +2,7 @@ package com.example.agrokushproject.controller;
 
 import com.example.agrokushproject.dto.MeterDto;
 import com.example.agrokushproject.service.MeterService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +16,12 @@ public class MeterController {
     private final MeterService meterService;
 
     @PostMapping("/save")
-    public MeterDto saveCounter(@RequestBody MeterDto meterDto) {
+    public MeterDto saveCounter(@Valid @RequestBody MeterDto meterDto) {
         return meterService.saveMeter(meterDto);
     }
 
     @PutMapping("/update/{id}")
-    public MeterDto updateCounter(@RequestBody MeterDto meterDto){
+    public MeterDto updateCounter(@Valid @RequestBody MeterDto meterDto){
         return meterService.updateMeter(meterDto);
     }
 

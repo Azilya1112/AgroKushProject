@@ -1,5 +1,6 @@
 package com.example.agrokushproject.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class LocationDto {
-    private int id;
+    private Long id;
+    @NotBlank
     private String name;
     private String description;
     private String address;

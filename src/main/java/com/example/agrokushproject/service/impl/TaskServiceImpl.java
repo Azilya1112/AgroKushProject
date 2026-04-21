@@ -2,7 +2,6 @@ package com.example.agrokushproject.service.impl;
 
 import com.example.agrokushproject.dto.TaskDto;
 import com.example.agrokushproject.entity.Task;
-import com.example.agrokushproject.exceptions.RecordNotFoundException;
 import com.example.agrokushproject.mapper.TaskMapper;
 import com.example.agrokushproject.repositories.TaskRepository;
 import com.example.agrokushproject.service.TaskService;

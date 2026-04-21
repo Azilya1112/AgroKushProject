@@ -2,6 +2,7 @@ package com.example.agrokushproject.controller;
 
 import com.example.agrokushproject.dto.DefectDto;
 import com.example.agrokushproject.service.DefectService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +16,12 @@ public class DefectController {
     private final DefectService defectService;
 
     @PostMapping("/save")
-    public DefectDto saveDefect(@RequestBody DefectDto defectDto) {
+    public DefectDto saveDefect(@Valid @RequestBody DefectDto defectDto) {
         return defectService.saveDefect(defectDto);
     }
 
     @PutMapping("/update/{id}")
-    public DefectDto updateDefect(@RequestBody DefectDto defectDto){
+    public DefectDto updateDefect(@Valid @RequestBody DefectDto defectDto){
         return defectService.updateDefect(defectDto);
     }
 

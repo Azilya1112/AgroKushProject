@@ -2,6 +2,7 @@ package com.example.agrokushproject.controller;
 
 import com.example.agrokushproject.dto.EquipmentDto;
 import com.example.agrokushproject.service.EquipmentService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +16,12 @@ public class EquipmentController {
     private final EquipmentService equipmentService;
 
     @PostMapping("/save")
-    public EquipmentDto saveSparePart(@RequestBody EquipmentDto equipmentDto) {
+    public EquipmentDto saveSparePart(@Valid @RequestBody EquipmentDto equipmentDto) {
         return equipmentService.saveEquipment(equipmentDto);
     }
 
     @PutMapping("/update/{id}")
-    public EquipmentDto updateSparePart(@RequestBody EquipmentDto equipmentDto){
+    public EquipmentDto updateSparePart(@Valid @RequestBody EquipmentDto equipmentDto){
         return equipmentService.updateEquipment(equipmentDto);
     }
 
