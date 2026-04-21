@@ -2,11 +2,10 @@ package com.example.agrokushproject.dto;
 
 
 import com.example.agrokushproject.entity.enums.EquipmentStatus;
-import lombok.AccessLevel;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -17,6 +16,7 @@ import java.util.Set;
 @Data
 public class EquipmentDto {
     private Long id;
+    @NotBlank
     private String equipmentName;
     private String model;
     private String manufacturer;

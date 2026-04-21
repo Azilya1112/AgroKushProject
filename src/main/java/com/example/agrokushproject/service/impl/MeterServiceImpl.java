@@ -2,11 +2,11 @@ package com.example.agrokushproject.service.impl;
 
 import com.example.agrokushproject.dto.MeterDto;
 import com.example.agrokushproject.entity.Meter;
-import com.example.agrokushproject.exceptions.RecordNotFoundException;
 import com.example.agrokushproject.mapper.MeterMapper;
 import com.example.agrokushproject.repositories.MeterRepository;
 import com.example.agrokushproject.service.MeterService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MeterServiceImpl implements MeterService {
@@ -25,6 +26,7 @@ public class MeterServiceImpl implements MeterService {
     @Override
     @Transactional
     public MeterDto saveMeter(MeterDto meterDto) {
+        log.info("Saving meter: {}", meterDto.getCounterName());
         Meter toSave = meterMapper.toEntity(meterDto);
         Meter saved = meterRepository.save(toSave);
         return meterMapper.toDto(saved);
@@ -37,7 +39,7 @@ public class MeterServiceImpl implements MeterService {
         if(id == null) {
             throw new ResponseStatusException(NOT_FOUND, "Meter id must be provided for update");
         }
-
+        log.info("Updating meter with id: {}", id);
         Meter existing = meterRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Meter not found with id: " + id));
 
         Meter updated=meterMapper.toEntity(meterDto);
@@ -45,12 +47,12 @@ public class MeterServiceImpl implements MeterService {
 
         Meter saved = meterRepository.save(updated);
         return meterMapper.toDto(saved);
-
     }
 
     @Override
     @Transactional
     public List<MeterDto> getAllMeters() {
+        log.debug("Fetching all meters");
         List<Meter> meters = meterRepository.findAll();
         return meterMapper.toDtoList(meters);
     }
@@ -59,9 +61,10 @@ public class MeterServiceImpl implements MeterService {
     @Transactional
     public void deleteMeter(Long id) {
         if(!meterRepository.existsById(id)) {
+            log.warn("Meter not found with id: {}", id);
             throw new ResponseStatusException(NOT_FOUND, "Meter not found with id: " + id);
         }
+        log.info("Deleting meter with id: {}", id);
         meterRepository.deleteById(id);
-
     }
 }

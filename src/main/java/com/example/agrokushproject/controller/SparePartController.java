@@ -2,6 +2,7 @@ package com.example.agrokushproject.controller;
 
 import com.example.agrokushproject.dto.SparePartDto;
 import com.example.agrokushproject.service.SparePartService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +16,12 @@ public class SparePartController {
     private final SparePartService sparePartService;
 
     @PostMapping("/save")
-    public SparePartDto saveSparePart(@RequestBody SparePartDto sparePartDto) {
+    public SparePartDto saveSparePart(@Valid @RequestBody SparePartDto sparePartDto) {
         return sparePartService.saveSparePart(sparePartDto);
     }
 
     @PutMapping("/update/{id}")
-    public SparePartDto updateSparePart(@RequestBody SparePartDto sparePartDto){
+    public SparePartDto updateSparePart(@Valid @RequestBody SparePartDto sparePartDto){
         return sparePartService.updateSparePart(sparePartDto);
     }
 

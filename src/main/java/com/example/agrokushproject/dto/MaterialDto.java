@@ -1,11 +1,9 @@
 package com.example.agrokushproject.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,7 +11,9 @@ import lombok.experimental.FieldDefaults;
 public class MaterialDto {
 
     private Long id;
+    @NotBlank
     private String fileName;
+    @NotBlank
     private String contentType;
     private Long sizeBytes;
     // URL, по которому можно скачать файл (например, /api/materials/{id}/data)

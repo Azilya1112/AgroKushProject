@@ -2,11 +2,10 @@ package com.example.agrokushproject.dto;
 
 //import com.example.agrokushproject.entity.User;
 import com.example.agrokushproject.entity.enums.TaskStatus;
-import lombok.AccessLevel;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -16,6 +15,7 @@ import java.util.Set;
 @Data
 public class TaskDto {
     private Long id;
+    @NotBlank
     private String name;
     private String description;
     private LocalDateTime startTime;
