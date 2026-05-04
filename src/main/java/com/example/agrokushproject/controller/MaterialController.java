@@ -4,9 +4,12 @@ import com.example.agrokushproject.dto.MaterialDto;
 import com.example.agrokushproject.service.MaterialService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -26,8 +29,15 @@ public class MaterialController {
     }
 
     @GetMapping("/findAll")
-    public List<MaterialDto> findAll() {
-        return materialService.getAllMaterials();
+    public Page<MaterialDto> findAll(
+            @RequestParam(required = false) String fileName,
+             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return materialService.getAllMaterials(fileName, pageable);
+    }
+
+    @GetMapping("/find/{id}")
+    public MaterialDto findById(@PathVariable Long id) {
+        return materialService.getMaterialById(id);
     }
 
     @DeleteMapping("/delete/{id}")

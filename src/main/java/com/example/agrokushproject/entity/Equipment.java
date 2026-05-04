@@ -1,12 +1,13 @@
 package com.example.agrokushproject.entity;
 
-//Добавить техпаспорт оборудования
 import com.example.agrokushproject.entity.enums.EquipmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -27,7 +28,7 @@ public class Equipment {
     @Column(name="manufacturer")
     private String manufacturer;
 
-    @Column(name="installationDate")
+    @Column(name="installation_date")
     private LocalDateTime installationDate;
 
     @Column(name="equipment_status")
@@ -48,11 +49,19 @@ public class Equipment {
     private Set<SparePart> spareParts = new HashSet<>();
 
     @EqualsAndHashCode.Exclude
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn
-    Material techPassport;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tech_passport_id")
+    private Material techPassport;
+
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Defect> defects = new ArrayList<>();
+
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Meter> meters = new ArrayList<>();
 }

@@ -2,7 +2,7 @@ package com.example.agrokushproject.repositories;
 
 import com.example.agrokushproject.entity.Material;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface MaterialRepository extends JpaRepository<Material, Long> {
-
+public interface MaterialRepository extends JpaRepository<Material, Long>, JpaSpecificationExecutor<Material> {
 }

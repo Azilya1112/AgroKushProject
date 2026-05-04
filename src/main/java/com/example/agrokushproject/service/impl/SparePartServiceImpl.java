@@ -7,11 +7,12 @@ import com.example.agrokushproject.repositories.SparePartRepository;
 import com.example.agrokushproject.service.SparePartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -52,10 +53,14 @@ public class SparePartServiceImpl implements SparePartService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SparePartDto> getAllSparePart() {
-        log.debug("Fetching all spare parts");
-        List<SparePart> list = sparePartRepository.findAll();
-        return sparePartMapper.toDtoList(list);
+    public Page<SparePartDto> getAllSparePart(String name, Pageable pageable) {
+        log.debug("Fetching spare parts, name={}", name);
+        Specification<SparePart> spec = (root, q, cb) -> cb.conjunction();
+        if (name != null && !name.isBlank()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+        }
+        return sparePartRepository.findAll(spec, pageable).map(sparePartMapper::toDto);
     }
 
     @Override
@@ -68,4 +73,11 @@ public class SparePartServiceImpl implements SparePartService {
         log.info("Deleting spare part with id: {}", id);
         sparePartRepository.deleteById(id);
     }
+
+    @Override
+    public SparePartDto getSparePartById(Long id) {
+        SparePart sparePart = sparePartRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "SparePart not found with id " + id));
+        return sparePartMapper.toDto(sparePart);
+      }
 }

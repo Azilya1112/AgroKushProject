@@ -2,16 +2,18 @@ package com.example.agrokushproject.service.impl;
 
 import com.example.agrokushproject.dto.EquipmentDto;
 import com.example.agrokushproject.entity.Equipment;
+import com.example.agrokushproject.entity.enums.EquipmentStatus;
 import com.example.agrokushproject.mapper.EquipmentMapper;
 import com.example.agrokushproject.repositories.EquipmentRepository;
 import com.example.agrokushproject.service.EquipmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -52,10 +54,17 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EquipmentDto> getAllEquipment() {
-        log.debug("Fetching all equipment");
-        List<Equipment> all = equipmentRepository.findAll();
-        return equipmentMapper.toDtoList(all);
+    public Page<EquipmentDto> getAllEquipment(String name, EquipmentStatus status, Pageable pageable) {
+        log.debug("Fetching equipment, name={}, status={}", name, status);
+        Specification<Equipment> spec = (root, q, cb) -> cb.conjunction();
+        if (name != null && !name.isBlank()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("equipmentName")), "%" + name.toLowerCase() + "%"));
+        }
+        if (status != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("equipmentStatus"), status));
+        }
+        return equipmentRepository.findAll(spec, pageable).map(equipmentMapper::toDto);
     }
 
     @Override
@@ -68,4 +77,10 @@ public class EquipmentServiceImpl implements EquipmentService {
             log.info("Deleting equipment with id: {}", id);
             equipmentRepository.deleteById(id);
         }
+
+    @Override
+    public EquipmentDto getEquipmentById(Long id) {
+        Equipment equipment = equipmentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Equipment not found with id " + id));
+        return equipmentMapper.toDto(equipment);}
     }

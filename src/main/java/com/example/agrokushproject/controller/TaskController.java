@@ -1,12 +1,16 @@
 package com.example.agrokushproject.controller;
 
 import com.example.agrokushproject.dto.TaskDto;
+import com.example.agrokushproject.entity.enums.TaskStatus;
 import com.example.agrokushproject.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -26,8 +30,16 @@ public class TaskController {
     }
 
     @GetMapping("/findAll")
-    public List<TaskDto> findAll() {
-        return taskService.getAllTask();
+    public Page<TaskDto> findAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) TaskStatus status,
+             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return taskService.getAllTask(name, status, pageable);
+    }
+
+    @GetMapping("/find/{id}")
+    public TaskDto findById(@PathVariable Long id) {
+        return taskService.getTaskById(id);
     }
 
     @DeleteMapping("/delete/{id}")

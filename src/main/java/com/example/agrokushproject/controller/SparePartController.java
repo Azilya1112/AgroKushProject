@@ -4,9 +4,12 @@ import com.example.agrokushproject.dto.SparePartDto;
 import com.example.agrokushproject.service.SparePartService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -26,8 +29,15 @@ public class SparePartController {
     }
 
     @GetMapping("/findAll")
-    public List<SparePartDto> findAll() {
-        return sparePartService.getAllSparePart();
+    public Page<SparePartDto> findAll(
+            @RequestParam(required = false) String name,
+             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return sparePartService.getAllSparePart(name, pageable);
+    }
+
+    @GetMapping("/find/{id}")
+    public SparePartDto findById(@PathVariable Long id) {
+        return sparePartService.getSparePartById(id);
     }
 
     @DeleteMapping("/delete/{id}")

@@ -5,12 +5,17 @@ import com.example.agrokushproject.entity.Meter;
 import com.example.agrokushproject.mapper.MeterMapper;
 import com.example.agrokushproject.repositories.MeterRepository;
 import com.example.agrokushproject.service.MeterService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -50,11 +55,27 @@ public class MeterServiceImpl implements MeterService {
     }
 
     @Override
-    @Transactional
-    public List<MeterDto> getAllMeters() {
-        log.debug("Fetching all meters");
-        List<Meter> meters = meterRepository.findAll();
-        return meterMapper.toDtoList(meters);
+    @Transactional(readOnly = true)
+    public Page<MeterDto> getAllMeters(String name, Long equipmentId, Pageable pageable) {
+        log.debug("Fetching meters, name={}, equipmentId={}", name, equipmentId);
+        Specification<Meter> spec = (root, q, cb) -> cb.conjunction();
+        if (name != null && !name.isBlank()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("counterName")), "%" + name.toLowerCase() + "%"));
+        }
+        if (equipmentId != null) {
+            spec = spec.and((root, q, cb) ->
+                cb.equal(root.get("equipment").get("id"), equipmentId));
+        }
+        return meterRepository.findAll(spec, pageable).map(meterMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MeterDto> getMetersByEquipmentId(Long equipmentId) {
+        log.debug("Fetching meters for equipment id: {}", equipmentId);
+        List<Meter> meters = meterRepository.findByEquipmentId(equipmentId);
+        return meters.isEmpty() ? Collections.emptyList() : meterMapper.toDtoList(meters);
     }
 
     @Override
@@ -66,5 +87,12 @@ public class MeterServiceImpl implements MeterService {
         }
         log.info("Deleting meter with id: {}", id);
         meterRepository.deleteById(id);
+    }
+
+    @Override
+    public MeterDto getMeterById(Long id) {
+        Meter meter = meterRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Meter not found with id: " + id));
+        return meterMapper.toDto(meter);
     }
 }

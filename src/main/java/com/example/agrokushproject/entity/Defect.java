@@ -1,15 +1,15 @@
 package com.example.agrokushproject.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.example.agrokushproject.entity.enums.DefectStatus;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,6 +27,16 @@ public class Defect {
     @Column(name="description")
     private String description;
 
+    @Column(name="defect_status")
+    @Enumerated(EnumType.STRING)
+    private DefectStatus defectStatus;
+
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipment_id")
+    private Equipment equipment;
+
+    @EqualsAndHashCode.Exclude
     @OneToMany(
             mappedBy = "defect",
             cascade = CascadeType.ALL,
@@ -34,5 +44,4 @@ public class Defect {
             fetch = FetchType.LAZY
     )
     private List<Material> images = new ArrayList<>();
-
 }

@@ -26,6 +26,11 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request){
         log.info("Registering new user: {}", request.getEmail());
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.CONFLICT,
+                    "User with email " + request.getEmail() + " already exists");
+        }
         var user= User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
