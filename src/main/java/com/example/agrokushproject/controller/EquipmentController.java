@@ -1,12 +1,16 @@
 package com.example.agrokushproject.controller;
 
 import com.example.agrokushproject.dto.EquipmentDto;
+import com.example.agrokushproject.entity.enums.EquipmentStatus;
 import com.example.agrokushproject.service.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -26,8 +30,16 @@ public class EquipmentController {
     }
 
     @GetMapping("/findAll")
-    public List<EquipmentDto> findAll() {
-        return equipmentService.getAllEquipment();
+    public Page<EquipmentDto> findAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) EquipmentStatus status,
+             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return equipmentService.getAllEquipment(name, status, pageable);
+    }
+
+    @GetMapping("/find/{id}")
+    public EquipmentDto findById(@PathVariable Long id) {
+        return equipmentService.getEquipmentById(id);
     }
 
     @DeleteMapping("/delete/{id}")

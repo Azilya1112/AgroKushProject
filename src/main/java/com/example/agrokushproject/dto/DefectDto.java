@@ -17,5 +17,6 @@ public class DefectDto {
     @NotBlank
     private String defectName;
     private String description;
+    private Long equipmentId;
     private List<Long> imageIds;
 }

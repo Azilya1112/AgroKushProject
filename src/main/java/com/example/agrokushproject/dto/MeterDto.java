@@ -18,5 +18,5 @@ public class MeterDto {
     private int currentValue;
     @Min(1)
     private int readingInterval;
-
+    private Long equipmentId;
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 
@@ -26,4 +27,6 @@ public class EquipmentDto {
     private Set<Long> sparePartIds;
     private Long locationId;
     private Long techPassportId;
+    private List<Long> defectIds;
+    private List<Long> meterIds;
 }

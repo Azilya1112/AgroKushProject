@@ -7,11 +7,12 @@ import com.example.agrokushproject.repositories.LocationRepository;
 import com.example.agrokushproject.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -50,10 +51,14 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<LocationDto> getAllLocations() {
-        log.debug("Fetching all locations");
-        List<Location> list = locationRepository.findAll();
-        return locationMapper.toDtoList(list);
+    public Page<LocationDto> getAllLocations(String name, Pageable pageable) {
+        log.debug("Fetching locations, name={}", name);
+        Specification<Location> spec = (root, q, cb) -> cb.conjunction();
+        if (name != null && !name.isBlank()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+        }
+        return locationRepository.findAll(spec, pageable).map(locationMapper::toDto);
     }
 
     @Override
@@ -66,5 +71,13 @@ public class LocationServiceImpl implements LocationService {
         }
         log.info("Deleting location with id: {}", id);
         locationRepository.deleteById(id);
+    }
+
+    @Override
+    public LocationDto getLocationById(Long id) {
+        Location location = locationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND,
+                        "Location not found with id " + id));
+        return locationMapper.toDto(location);
     }
 }

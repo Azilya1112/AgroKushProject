@@ -1,12 +1,13 @@
 package com.example.agrokushproject.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,9 +26,17 @@ public class Meter {
     private String description;
 
     @Column(name="current_value")
-    private int currentValue;
+    private double currentValue;
 
     @Column(name="reading_interval")
     private int readingInterval;
 
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipment_id")
+    private Equipment equipment;
+
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "meter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MeterReading> readings = new ArrayList<>();
 }

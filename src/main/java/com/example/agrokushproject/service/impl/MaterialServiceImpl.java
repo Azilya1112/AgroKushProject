@@ -7,11 +7,12 @@ import com.example.agrokushproject.repositories.MaterialRepository;
 import com.example.agrokushproject.service.MaterialService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -61,10 +62,14 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MaterialDto> getAllMaterials() {
-        log.debug("Fetching all materials");
-        List<Material> list = materialRepository.findAll();
-        return materialMapper.toDtoList(list);
+    public Page<MaterialDto> getAllMaterials(String fileName, Pageable pageable) {
+        log.debug("Fetching materials, fileName={}", fileName);
+        Specification<Material> spec = (root, q, cb) -> cb.conjunction();
+        if (fileName != null && !fileName.isBlank()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("fileName")), "%" + fileName.toLowerCase() + "%"));
+        }
+        return materialRepository.findAll(spec, pageable).map(materialMapper::toDto);
     }
 
     @Override
