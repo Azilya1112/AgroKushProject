@@ -1,7 +1,7 @@
 package com.example.agrokushproject.controller;
 
-import com.example.agrokushproject.dto.SparePartDto;
-import com.example.agrokushproject.service.SparePartService;
+import com.example.agrokushproject.dto.LocationDto;
+import com.example.agrokushproject.service.LocationService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -14,36 +14,36 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/sparePart")
-public class SparePartController {
+@RequestMapping("/location")
+public class LocationController {
 
-    private final SparePartService sparePartService;
+    private final LocationService locationService;
 
     @PostMapping("/save")
-    public ResponseEntity<SparePartDto> save(@Valid @RequestBody SparePartDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(sparePartService.saveSparePart(dto));
+    public ResponseEntity<LocationDto> save(@Valid @RequestBody LocationDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(locationService.saveLocation(dto));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<SparePartDto> update(@Valid @RequestBody SparePartDto dto) {
-        return ResponseEntity.ok(sparePartService.updateSparePart(dto));
+    public ResponseEntity<LocationDto> update(@Valid @RequestBody LocationDto dto) {
+        return ResponseEntity.ok(locationService.updateLocation(dto));
     }
 
     @GetMapping("/find/{id}")
-    public ResponseEntity<SparePartDto> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(sparePartService.getSparePartById(id));
+    public ResponseEntity<LocationDto> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(locationService.getLocationById(id));
     }
 
     @GetMapping("/findAll")
-    public ResponseEntity<Page<SparePartDto>> findAll(
+    public ResponseEntity<Page<LocationDto>> findAll(
             @RequestParam(required = false) String name,
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        return ResponseEntity.ok(sparePartService.getAllSparePart(name, pageable));
+        return ResponseEntity.ok(locationService.getAllLocations(name, pageable));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        sparePartService.deleteSparePart(id);
+        locationService.deleteLocation(id);
         return ResponseEntity.noContent().build();
     }
 }

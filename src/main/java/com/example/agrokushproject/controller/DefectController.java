@@ -9,6 +9,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,32 +23,42 @@ public class DefectController {
     private final DefectService defectService;
 
     @PostMapping("/save")
-    public DefectDto saveDefect(@Valid @RequestBody DefectDto defectDto) {
-        return defectService.saveDefect(defectDto);
+    public ResponseEntity<DefectDto> save(@Valid @RequestBody DefectDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(defectService.saveDefect(dto));
     }
 
     @PutMapping("/update/{id}")
-    public DefectDto updateDefect(@Valid @RequestBody DefectDto defectDto){
-        return defectService.updateDefect(defectDto);
+    public ResponseEntity<DefectDto> update(@Valid @RequestBody DefectDto dto) {
+        return ResponseEntity.ok(defectService.updateDefect(dto));
+    }
+
+    @GetMapping("/find/{id}")
+    public ResponseEntity<DefectDto> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(defectService.getDefectById(id));
     }
 
     @GetMapping("/findAll")
-    public Page<DefectDto> findAll(
+    public ResponseEntity<Page<DefectDto>> findAll(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long equipmentId,
-             @RequestParam(required = false) DefectStatus defectStatus,
+            @RequestParam(required = false) DefectStatus defectStatus,
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        return defectService.getAllDefects(name, defectStatus, equipmentId, pageable);
+        return ResponseEntity.ok(defectService.getAllDefects(name, defectStatus, equipmentId, pageable));
     }
 
     @GetMapping("/findByEquipment/{equipmentId}")
-    public List<DefectDto> findByEquipment(@PathVariable Long equipmentId) {
-        return defectService.getDefectsByEquipmentId(equipmentId);
+    public ResponseEntity<List<DefectDto>> findByEquipment(@PathVariable Long equipmentId) {
+        return ResponseEntity.ok(defectService.getDefectsByEquipmentId(equipmentId));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<DefectDto> updateStatus(@PathVariable Long id, @RequestParam DefectStatus status) {
+        return ResponseEntity.ok(defectService.updateDefectStatus(id, status));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteDefect(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         defectService.deleteDefect(id);
+        return ResponseEntity.noContent().build();
     }
-
 }
