@@ -15,27 +15,28 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/task")
+@RequestMapping("/api/v1/tasks")
 public class TaskController {
 
     private final TaskService taskService;
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<TaskDto> save(@Valid @RequestBody TaskDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.saveTask(dto));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<TaskDto> update(@Valid @RequestBody TaskDto dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<TaskDto> update(@PathVariable Long id, @Valid @RequestBody TaskDto dto) {
+        dto.setId(id);
         return ResponseEntity.ok(taskService.updateTask(dto));
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<TaskDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<Page<TaskDto>> findAll(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) TaskStatus status,
@@ -43,7 +44,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTask(name, status, pageable));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();

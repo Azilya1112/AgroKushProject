@@ -14,34 +14,35 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/sparePart")
+@RequestMapping("/api/v1/spare-parts")
 public class SparePartController {
 
     private final SparePartService sparePartService;
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<SparePartDto> save(@Valid @RequestBody SparePartDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sparePartService.saveSparePart(dto));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<SparePartDto> update(@Valid @RequestBody SparePartDto dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<SparePartDto> update(@PathVariable Long id, @Valid @RequestBody SparePartDto dto) {
+        dto.setId(id);
         return ResponseEntity.ok(sparePartService.updateSparePart(dto));
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<SparePartDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(sparePartService.getSparePartById(id));
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<Page<SparePartDto>> findAll(
             @RequestParam(required = false) String name,
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(sparePartService.getAllSparePart(name, pageable));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         sparePartService.deleteSparePart(id);
         return ResponseEntity.noContent().build();
