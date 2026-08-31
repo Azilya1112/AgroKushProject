@@ -15,27 +15,28 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/equipment")
+@RequestMapping("/api/v1/equipment")
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<EquipmentDto> save(@Valid @RequestBody EquipmentDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(equipmentService.saveEquipment(dto));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<EquipmentDto> update(@Valid @RequestBody EquipmentDto dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<EquipmentDto> update(@PathVariable Long id, @Valid @RequestBody EquipmentDto dto) {
+        dto.setId(id);
         return ResponseEntity.ok(equipmentService.updateEquipment(dto));
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<EquipmentDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(equipmentService.getEquipmentById(id));
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<Page<EquipmentDto>> findAll(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) EquipmentStatus status,
@@ -43,7 +44,7 @@ public class EquipmentController {
         return ResponseEntity.ok(equipmentService.getAllEquipment(name, status, pageable));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         equipmentService.deleteEquipment(id);
         return ResponseEntity.noContent().build();

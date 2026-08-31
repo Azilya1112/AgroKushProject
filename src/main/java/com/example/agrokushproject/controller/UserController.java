@@ -16,7 +16,7 @@ import java.security.Principal;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -29,23 +29,24 @@ public class UserController {
         return ResponseEntity.ok(userService.getByEmail(principal.getName()));
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<UserDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getById(id));
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<Page<UserDto>> findAll(
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(userService.getAll(pageable));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> update(@PathVariable Long id, @Valid @RequestBody UserDto dto) {
+        dto.setId(id);
         return ResponseEntity.ok(userService.update(dto));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();

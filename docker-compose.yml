@@ -15,8 +15,10 @@ services:
 
   backend:
     build: .
+    # Loopback only: the browser reaches the API through the frontend's proxy, so this
+    # is here purely for `npm run dev` and for debugging with curl. Drop it in production.
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/agro_kush
@@ -28,6 +30,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  # Serves the SPA and proxies /api/* to the backend, so the browser only ever talks
+  # to one origin. Built with an empty VITE_API_URL (the Dockerfile default), which is
+  # what makes the image environment-independent.
+  frontend:
+    build:
+      context: ../agro-kush-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 volumes:
   pgdata:

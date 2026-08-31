@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/meter/{meterId}/readings")
+@RequestMapping("/api/v1/meters/{meterId}/readings")
 public class MeterReadingController {
 
     private final MeterReadingService readingService;

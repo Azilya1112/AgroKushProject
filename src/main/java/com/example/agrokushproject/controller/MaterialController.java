@@ -14,34 +14,35 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/material")
+@RequestMapping("/api/v1/materials")
 public class MaterialController {
 
     private final MaterialService materialService;
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<MaterialDto> save(@Valid @RequestBody MaterialDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(materialService.saveMaterial(dto));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<MaterialDto> update(@Valid @RequestBody MaterialDto dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<MaterialDto> update(@PathVariable Long id, @Valid @RequestBody MaterialDto dto) {
+        dto.setId(id);
         return ResponseEntity.ok(materialService.updateMaterial(dto));
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<MaterialDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(materialService.getMaterialById(id));
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<Page<MaterialDto>> findAll(
             @RequestParam(required = false) String fileName,
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(materialService.getAllMaterials(fileName, pageable));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         materialService.deleteMaterialById(id);
         return ResponseEntity.noContent().build();

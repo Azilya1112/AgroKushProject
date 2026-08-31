@@ -12,31 +12,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @AllArgsConstructor
-@RequestMapping("/meter")
+@RequestMapping("/api/v1/meters")
 public class MeterController {
 
     private final MeterService meterService;
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<MeterDto> save(@Valid @RequestBody MeterDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(meterService.saveMeter(dto));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<MeterDto> update(@Valid @RequestBody MeterDto dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<MeterDto> update(@PathVariable Long id, @Valid @RequestBody MeterDto dto) {
+        dto.setId(id);
         return ResponseEntity.ok(meterService.updateMeter(dto));
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<MeterDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(meterService.getMeterById(id));
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<Page<MeterDto>> findAll(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long equipmentId,
@@ -44,12 +43,7 @@ public class MeterController {
         return ResponseEntity.ok(meterService.getAllMeters(name, equipmentId, pageable));
     }
 
-    @GetMapping("/findByEquipment/{equipmentId}")
-    public ResponseEntity<List<MeterDto>> findByEquipment(@PathVariable Long equipmentId) {
-        return ResponseEntity.ok(meterService.getMetersByEquipmentId(equipmentId));
-    }
-
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         meterService.deleteMeter(id);
         return ResponseEntity.noContent().build();

@@ -14,34 +14,35 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/location")
+@RequestMapping("/api/v1/locations")
 public class LocationController {
 
     private final LocationService locationService;
 
-    @PostMapping("/save")
+    @PostMapping
     public ResponseEntity<LocationDto> save(@Valid @RequestBody LocationDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(locationService.saveLocation(dto));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<LocationDto> update(@Valid @RequestBody LocationDto dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<LocationDto> update(@PathVariable Long id, @Valid @RequestBody LocationDto dto) {
+        dto.setId(id);
         return ResponseEntity.ok(locationService.updateLocation(dto));
     }
 
-    @GetMapping("/find/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<LocationDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(locationService.getLocationById(id));
     }
 
-    @GetMapping("/findAll")
+    @GetMapping
     public ResponseEntity<Page<LocationDto>> findAll(
             @RequestParam(required = false) String name,
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(locationService.getAllLocations(name, pageable));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         locationService.deleteLocation(id);
         return ResponseEntity.noContent().build();
