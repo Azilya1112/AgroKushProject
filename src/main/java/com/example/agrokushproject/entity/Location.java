@@ -30,9 +30,9 @@ public class Location {
     @Column(name="coordinates")
     private String coordinates;
 
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "location")
     private List<Equipment> equipments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "location")
     private List<Task> tasks = new ArrayList<>();
 }

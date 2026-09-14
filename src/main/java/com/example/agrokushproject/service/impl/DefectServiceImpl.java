@@ -34,6 +34,7 @@ public class DefectServiceImpl implements DefectService {
     public DefectDto saveDefect(DefectDto defectDto) {
         log.info("Saving defect: {}", defectDto.getDefectName());
         Defect entity = defectMapper.toEntity(defectDto);
+        entity.setDefectStatus(DefectStatus.OPEN);
         Defect saved = defectRepository.save(entity);
         return defectMapper.toDto(saved);
     }
@@ -51,6 +52,7 @@ public class DefectServiceImpl implements DefectService {
 
         Defect toSave = defectMapper.toEntity(defectDto);
         toSave.setId(existing.getId());
+        toSave.setDefectStatus(existing.getDefectStatus());
 
         Defect updated = defectRepository.save(toSave);
         return defectMapper.toDto(updated);

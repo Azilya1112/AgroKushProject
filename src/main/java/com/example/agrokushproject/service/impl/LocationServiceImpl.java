@@ -3,7 +3,9 @@ package com.example.agrokushproject.service.impl;
 import com.example.agrokushproject.dto.LocationDto;
 import com.example.agrokushproject.entity.Location;
 import com.example.agrokushproject.mapper.LocationMapper;
+import com.example.agrokushproject.repositories.EquipmentRepository;
 import com.example.agrokushproject.repositories.LocationRepository;
+import com.example.agrokushproject.repositories.TaskRepository;
 import com.example.agrokushproject.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
@@ -22,6 +25,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final TaskRepository taskRepository;
     private final LocationMapper locationMapper;
 
     @Override
@@ -68,6 +73,15 @@ public class LocationServiceImpl implements LocationService {
             log.warn("Location not found with id: {}", id);
             throw new ResponseStatusException(NOT_FOUND,
                     "Location not found with id " + id);
+        }
+        long equipmentCount = equipmentRepository.countByLocationId(id);
+        long taskCount = taskRepository.countByLocationId(id);
+        if (equipmentCount > 0 || taskCount > 0) {
+            log.warn("Refusing to delete location id={}: {} equipment, {} tasks attached",
+                    id, equipmentCount, taskCount);
+            throw new ResponseStatusException(CONFLICT,
+                    "Cannot delete location: " + equipmentCount + " equipment and " + taskCount
+                            + " tasks are attached to it. Move or delete them first.");
         }
         log.info("Deleting location with id: {}", id);
         locationRepository.deleteById(id);

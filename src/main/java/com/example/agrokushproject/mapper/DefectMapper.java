@@ -22,6 +22,7 @@ public interface DefectMapper {
 
     @Mapping(source = "equipmentId", target = "equipment")
     @Mapping(source = "imageIds", target = "images")
+    @Mapping(target = "defectStatus", ignore = true)
     Defect toEntity(DefectDto dto);
 
     List<Defect> toEntityList(List<DefectDto> dtos);

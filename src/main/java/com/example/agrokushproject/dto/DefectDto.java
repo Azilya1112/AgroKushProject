@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import com.example.agrokushproject.entity.enums.DefectStatus;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,4 +21,5 @@ public class DefectDto {
     private String description;
     private Long equipmentId;
     private List<Long> imageIds;
+    private DefectStatus defectStatus;
 }
