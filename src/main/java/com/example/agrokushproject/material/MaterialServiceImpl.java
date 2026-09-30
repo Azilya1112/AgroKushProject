@@ -1,0 +1,80 @@
+package com.example.agrokushproject.material;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MaterialServiceImpl implements MaterialService {
+
+    private final MaterialRepository materialRepository;
+    private final MaterialMapper materialMapper;
+
+    @Override
+    @Transactional
+    public MaterialDto saveMaterial(MaterialDto materialDto) {
+        log.info("Saving material: {}", materialDto.getFileName());
+        Material entity = materialMapper.toEntity(materialDto);
+        Material saved = materialRepository.save(entity);
+        return materialMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public MaterialDto updateMaterial(MaterialDto materialDto) {
+        Long id = materialDto.getId();
+        if (id == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Material id must be provided for update");
+        }
+        log.info("Updating material with id: {}", id);
+        Material existing = materialRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Material not found with id " + id));
+
+        Material toSave = materialMapper.toEntity(materialDto);
+        toSave.setId(existing.getId());
+
+        Material updated = materialRepository.save(toSave);
+        return materialMapper.toDto(updated);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MaterialDto getMaterialById(long id) {
+        log.debug("Fetching material with id: {}", id);
+        Material material = materialRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Material not found with id " + id));
+        return materialMapper.toDto(material);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<MaterialDto> getAllMaterials(String fileName, Pageable pageable) {
+        log.debug("Fetching materials, fileName={}", fileName);
+        Specification<Material> spec = (root, q, cb) -> cb.conjunction();
+        if (fileName != null && !fileName.isBlank()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("fileName")), "%" + fileName.toLowerCase() + "%"));
+        }
+        return materialRepository.findAll(spec, pageable).map(materialMapper::toDto);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMaterialById(long id) {
+        if (!materialRepository.existsById(id)) {
+            log.warn("Material not found with id: {}", id);
+            throw new ResponseStatusException(NOT_FOUND, "Material not found with id " + id);
+        }
+        log.info("Deleting material with id: {}", id);
+        materialRepository.deleteById(id);
+    }
+}
